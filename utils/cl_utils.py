@@ -120,8 +120,6 @@ class Client:
                 mem_x, mem_y, _ = self.memory.random_sampling(self.args.batch_size, exclude_task=self.task_id)
             if self.args.sampling_strategy == 'balanced_random':
                 mem_x, mem_y, _ = self.memory.balanced_random_sampling(self.args.batch_size, exclude_task=self.task_id)
-            if self.args.sampling_strategy == 'epig':
-                mem_x, mem_y, _ = self.memory.epig_sampling(self.model, exclude_task=self.task_id)
 
             mem_x, mem_y = mem_x.to(self.args.device), mem_y.to(self.args.device)
             input_x = torch.cat([samples, mem_x]) # .to(self.args.device)
