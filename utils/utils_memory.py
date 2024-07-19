@@ -375,8 +375,8 @@ def ratioSampling(zs, axis=0, class_axis=-1):
     softmax_scores = torch.nn.functional.softmax(zs, class_axis).mean(axis)
     top_candidates = torch.topk(softmax_scores, k=2, dim=class_axis)[0]
     firstConfidence = top_candidates[:, 0]
-    secoundConfidence = top_candidates[:, 1]
-    margin = secoundConfidence / firstConfidence
+    secondConfidence = top_candidates[:, 1]
+    margin = secondConfidence / firstConfidence
     return margin, True
 
 
