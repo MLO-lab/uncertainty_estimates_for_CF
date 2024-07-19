@@ -4,6 +4,7 @@ import numpy as np
 
 from collections import defaultdict
 from models.resnet import SlimResNet18
+from models.resnetMC import SlimResNet18MC  
 from models.mlp import MLP
 from sklearn.metrics import balanced_accuracy_score
 from torchvision import transforms
@@ -62,6 +63,8 @@ def initialize_model(args):
         model = custom_resnet(args, resnet)
     if args.model_name == 'resnet':
         model = SlimResNet18(nclasses=args.n_classes, input_size=args.input_size).to(args.device)
+    if args.model_name == 'resnetmc':
+        model = SlimResNet18MC(nclasses=args.n_classes, input_size=args.input_size, dropout_prob=0.3).to(args.device)
     if args.model_name == 'mlp':
         model = MLP(args).to(args.device)
 

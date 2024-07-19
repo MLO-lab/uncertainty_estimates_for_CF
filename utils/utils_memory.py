@@ -317,6 +317,8 @@ def compute_uncertainty_scores(args, mem_x, model, augmentations, tta_rep=5, see
         unc_scores, descending = entropy(logits_out)
     if args.uncertainty_score == "rainbow":
         unc_scores, descending = rainbowSampling(logits_out, args, size=transformSize) # size=tta_rep
+    if args.uncertainty_score == "mc":
+        unc_scores, descending = MC_sampling(mem_x, model)
     elif args.uncertainty_score == "ratio":
         unc_scores, descending = ratioSampling(logits_out)
     return unc_scores, descending
@@ -376,6 +378,19 @@ def ratioSampling(zs, axis=0, class_axis=-1):
     secoundConfidence = top_candidates[:, 1]
     margin = secoundConfidence / firstConfidence
     return margin, True
+
+
+@torch.no_grad()
+def MC_sampling(mem_x, model, num_rep=20):
+    model.train()
+    logits_rep = []
+    for _ in range(num_rep):
+        logits = model(mem_x)
+        logits_rep.append(logits.unsqueeze(0))
+
+    logits_rep = torch.cat(logits_rep, dim=0).detach().cpu()
+    uncertainty = logits_rep.var(dim=0).mean(dim=1)
+    return uncertainty, True
 
 
 class CutoutAfterToTensor(object):

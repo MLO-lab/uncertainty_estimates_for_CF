@@ -210,6 +210,104 @@ class Client:
         plt.close()
 
         return logger
+
+
+    @torch.no_grad()
+    def testMC(self, logger, run, num_rep=20):
+        self.model.train()
+        for task_id_eval, eval_loader in enumerate(self.test_loader):
+            total_correct, total = 0.0, 0.0
+            y_pred = []
+            y_true = []
+            if task_id_eval > self.task_id:
+                break
+
+            for samples, labels in eval_loader:
+                samples, labels = samples.to(self.args.device), labels.to(self.args.device)
+                logits_rep = []
+                for _ in range(num_rep):
+                    logits = self.model(samples)
+                    logits_rep.append(logits.unsqueeze(0))
+
+                logits_rep = torch.cat(logits_rep, dim=0)
+                logits_mean = logits_rep.mean(dim=0)
+                preds = logits_mean.argmax(dim=1)
+                total_correct += (preds == labels).sum()
+                total += len(labels)
+                y_true.append(labels)
+                y_pred.append(preds)
+
+            y_true = torch.cat(y_true).cpu()
+            y_pred = torch.cat(y_pred).cpu()
+            accuracy = total_correct/total
+
+            cm = confusion_matrix(y_true, y_pred, labels=self.cls_assignment)
+            cm_display = ConfusionMatrixDisplay(cm, display_labels=self.cls_assignment).plot()
+            plt.tight_layout()
+            plt.title(f'Accuracy: {accuracy:.3f}')
+            plt.savefig(f'{self.args.dir_results}run{run}_cm_{self.task_id}_{task_id_eval}.pdf', format='pdf')
+            plt.close()
+            logger['test']['acc'][self.client_id][run][self.task_id][task_id_eval] = accuracy
+        return logger
+    
+    
+    @torch.no_grad()
+    def validationMC(self, logger, run, num_rep=20):
+        self.model.train()
+        for task_id_eval, eval_loader in enumerate(self.val_loader):
+            total_correct, total = 0.0, 0.0
+            if task_id_eval > self.task_id:
+                break
+            for samples, labels in eval_loader:
+                samples, labels = samples.to(self.args.device), labels.to(self.args.device)
+                logits_rep = []
+                for _ in range(num_rep):
+                    logits = self.model(samples)
+                    logits_rep.append(logits.unsqueeze(0))
+
+                logits_rep = torch.cat(logits_rep, dim=0)
+                logits_mean = logits_rep.mean(dim=0)
+                preds = logits_mean.argmax(dim=1)
+                total_correct += (preds == labels).sum()
+                total += len(labels)
+            accuracy = total_correct/total
+            logger['val']['acc'][self.client_id][run][self.task_id][task_id_eval] = accuracy
+        return logger
+
+
+    @torch.no_grad()
+    def balanced_accuracyMC(self, logger, run, num_rep=20):
+        self.model.train()
+        y_pred = []
+        y_true = []
+        for task_id_eval, eval_loader in enumerate(self.test_loader):
+            if task_id_eval > self.task_id:
+                break
+            for samples, labels in eval_loader:
+                samples, labels = samples.to(self.args.device), labels.to(self.args.device)
+                logits_rep = []
+                for _ in range(num_rep):
+                    logits = self.model(samples)
+                    logits_rep.append(logits.unsqueeze(0))
+
+                logits_rep = torch.cat(logits_rep, dim=0)
+                logits_mean = logits_rep.mean(dim=0)
+                preds = logits_mean.argmax(dim=1)
+                y_true.append(labels)
+                y_pred.append(preds)
+        y_true = torch.cat(y_true).cpu()
+        y_pred = torch.cat(y_pred).cpu()
+        balanced_accuracy = balanced_accuracy_score(y_true, y_pred)    
+        logger['test']['bal_acc'][self.client_id][run] = balanced_accuracy
+
+        cm = confusion_matrix(y_true, y_pred, labels=self.cls_assignment)
+        cm_display = ConfusionMatrixDisplay(cm, display_labels=self.cls_assignment).plot()
+        plt.tight_layout()
+        plt.title(f'Accuracy: {balanced_accuracy:.3f}')
+        plt.savefig(f'{self.args.dir_results}run{run}_cm_final.pdf', format='pdf')
+        plt.close()
+
+        return logger
     
 
     def forgetting(self, logger, run):
