@@ -1,6 +1,15 @@
 # Predictive Uncertainty Estimates for Catastrophic Forgetting
 
-The repository contains the code to reproduce the results of our paper. 
+The repository contains the code to reproduce the results of the paper ["How to Leverage Predictive Uncertainty Estimates for Reducing Catastrophic Forgetting in Online Continual Learning"](https://openreview.net/forum?id=dczXe0S1oL)). 
+
+### Requirements
+The codebase is implemented in Python 3.11.4 and tested on Linux OS.
+ - `pytorch==2.0.1`
+ - `torchvision==0.15.2`
+ - `numpy==1.24.3`
+ - `scikit-learn==1.5.0`
+ - `medmnist==3.0.1`
+ - `matplotlib==3.7.1` 
 
 ### Structure of the repo
 - `utils` contains all the utilities to preprocess and save the data, to run the experiments, and to save the results.
