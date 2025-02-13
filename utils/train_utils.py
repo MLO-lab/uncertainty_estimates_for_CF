@@ -1,18 +1,13 @@
 import os, pickle
-import torch
 import medmnist
 import numpy as np
-
+import torch
 from collections import defaultdict
 from models.resnet import SlimResNet18
 from models.resnetMC import SlimResNet18MC  
 from models.mlp import MLP
-from sklearn.metrics import balanced_accuracy_score
-from torchvision import transforms
 from torchvision.models import resnet18, resnet50 # the self-implemented resnet is too slow
 from utils.data_loader import get_statistics
-from utils.cl_utils import Client
-from utils.utils_memory import Memory
 
 def get_free_gpu_idx():
     """Get the index of the GPU with current lowest memory usage."""
