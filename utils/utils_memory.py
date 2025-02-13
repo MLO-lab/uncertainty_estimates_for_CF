@@ -289,13 +289,6 @@ def compute_uncertainty_scores(args, mem_x, model, augmentations, tta_rep=5, see
 
     transformSize = len(transform_cands)
     mem_x = mem_x.to(args.device)
-    # all_logits = []
-    # with torch.no_grad():
-    #     for rep in range(tta_rep):
-    #         bx_tmp = augmentations(mem_x)
-    #         logits_tmp = model(bx_tmp)
-    #         all_logits.append(logits_tmp)
-
     all_logits = []
     with torch.no_grad():
         for tr in transform_cands:
@@ -424,23 +417,3 @@ class CutoutAfterToTensor(object):
         mask = mask.expand_as(img)
         img = img * mask + (1 - mask) * self.fill_color[:, None, None]
         return img
-
-
-class Solarize:
-    def __init__(self, args, v):
-        assert 0 <= v <= 1
-        self.v = v
-        self.args = args
-
-    def __call__(self, pil_img):
-        mean, std, n_classes, inp_size, in_channels = get_statistics(self.args)
-        invTrans = transforms.Compose([ transforms.Normalize(mean = np.dot(0, mean),
-                                                            std = np.divide(1, std)),
-                                        transforms.Normalize(mean = np.dot(-1, mean),
-                                                            std = np.divide(std, std)),
-                                    ])
-        trans = transforms.Normalize(mean, std)
-        pil_img = invTrans(pil_img)
-        mask = pil_img > self.v
-        pil_img[mask] = 1 - pil_img[mask]
-        return trans(pil_img)
