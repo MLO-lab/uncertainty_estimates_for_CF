@@ -1,5 +1,6 @@
 import os, pickle
 import torch
+import medmnist
 import numpy as np
 
 from collections import defaultdict
@@ -82,3 +83,16 @@ def save_results(args, logger):
     with open(logger_fn, 'wb') as outfile:
         pickle.dump(logger, outfile)
         outfile.close()
+
+
+def compute_avg_acc_for(args, logger):
+    client_id = 0
+    mean_acc = np.mean(np.mean(logger['test']['acc'][client_id][:,args.n_tasks-1,:], 0))
+    std_acc = np.std(np.mean(logger['test']['acc'][client_id][:,args.n_tasks-1,:], 1))
+    if args.dataset_name in medmnist.INFO.keys():
+        mean_acc = np.mean(logger['test']['bal_acc'][client_id])
+        std_acc = np.std(logger['test']['bal_acc'][client_id])
+
+    mean_for = np.mean(logger['test']['forget'][client_id])
+    std_for = np.std(logger['test']['forget'][client_id])
+    return mean_acc, std_acc, mean_for, std_for
