@@ -30,3 +30,17 @@ The most important hyperparameters are the followings:
 ### CIFAR10-LT and CIFAR100-LT
 To create these two datasets, first run the experiments with CIFAR10 and CIFAR100. After running these experiments, it is possible to create the long-tailed (LT) version of the already preprocessed data. 
 The snippet of code to save the LT version of the datasets is provided at the end of the Jupyter notebook.
+
+### Citation
+```
+@article{
+serra2025how,
+title={How to Leverage Predictive Uncertainty Estimates for Reducing Catastrophic Forgetting in Online Continual Learning},
+author={Giuseppe Serra and Ben Werner and Florian Buettner},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=dczXe0S1oL},
+note={}
+}
+```
